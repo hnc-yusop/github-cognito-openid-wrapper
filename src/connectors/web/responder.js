@@ -1,4 +1,5 @@
 const util = require('util');
+const logger = require('../logger');
 
 require('colors');
 
@@ -17,5 +18,8 @@ module.exports = res => ({
     res.statusCode = 400;
     res.end(`Failure: ${util.inspect(error.message)}`);
   },
-  redirect: url => res.redirect(url)
+  redirect: url => {
+    logger.debug("redirect in responder.js");
+    res.redirect(url);
+  }
 });

@@ -15,7 +15,9 @@ module.exports = {
   jwks: (req, res) => controllers(responder(res)).jwks(),
   authorize: (req, res) =>
     responder(res).redirect(
-      `https://github.com/login/oauth/authorize?client_id=${
+      `https://dev-accounts.malangmalang.com/oauth2/authorize?redirect_uri=${
+        req.query.redirect_uri
+      }&client_id=${
         req.query.client_id
       }&scope=${req.query.scope}&state=${req.query.state}&response_type=${
         req.query.response_type

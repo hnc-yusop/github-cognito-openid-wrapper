@@ -3,19 +3,19 @@ const {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
   COGNITO_REDIRECT_URI,
-  GITHUB_API_URL,
-  GITHUB_LOGIN_URL
+//  GITHUB_API_URL,
+//  GITHUB_LOGIN_URL
 } = require('./config');
 const logger = require('./connectors/logger');
 
 const getApiEndpoints = (
-  apiBaseUrl = GITHUB_API_URL,
-  loginBaseUrl = GITHUB_LOGIN_URL
+//  apiBaseUrl = GITHUB_API_URL,
+// loginBaseUrl = GITHUB_LOGIN_URL
 ) => ({
-  userDetails: `${apiBaseUrl}/user`,
-  userEmails: `${apiBaseUrl}/user/emails`,
-  oauthToken: `${loginBaseUrl}/login/oauth/access_token`,
-  oauthAuthorize: `${loginBaseUrl}/login/oauth/authorize`
+  userDetails: "https://dev-api.malangmalang.com/accounts/oauth2/me",
+  userEmails: "https://dev-api.malangmalang.com/accounts/oauth2/me",
+  oauthToken: "https://dev-api.malangmalang.com/accounts/oauth2/token",
+  oauthAuthorize: "https://dev-accounts.malangmalang.com/oauth2/authorize"
 });
 
 const check = response => {
@@ -43,18 +43,17 @@ const gitHubGet = (url, accessToken) =>
     method: 'get',
     url,
     headers: {
-      Accept: 'application/vnd.github.v3+json',
-      Authorization: `token ${accessToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   });
 
 module.exports = (apiBaseUrl, loginBaseUrl) => {
   const urls = getApiEndpoints(apiBaseUrl, loginBaseUrl || apiBaseUrl);
+
   return {
-    getAuthorizeUrl: (client_id, scope, state, response_type) =>
-      `${urls.oauthAuthorize}?client_id=${client_id}&scope=${encodeURIComponent(
-        scope
-      )}&state=${state}&response_type=${response_type}`,
+    getAuthorizeUrl: (client_id, scope, state, response_type) => {
+      logger.debug("getAuthroizeUrl");
+      return `${urls.oauthAuthorize}?redirect_uri=${COGNITO_REDIRECT_URI}&client_id=${client_id}&state=${state}&scope=${scope}&response_type=${response_type}`;},
     getUserDetails: accessToken =>
       gitHubGet(urls.userDetails, accessToken).then(check),
     getUserEmails: accessToken =>
@@ -82,11 +81,11 @@ module.exports = (apiBaseUrl, loginBaseUrl) => {
       return axios({
         method: 'post',
         url: urls.oauthToken,
+        params: data,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        data
       }).then(check);
     }
   };

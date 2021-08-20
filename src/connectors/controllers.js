@@ -3,6 +3,8 @@ const openid = require('../openid');
 
 module.exports = respond => ({
   authorize: (client_id, scope, state, response_type) => {
+    logger.debug('authorize in controllers.js');
+
     const authorizeUrl = openid.getAuthorizeUrl(
       client_id,
       scope,
@@ -30,6 +32,7 @@ module.exports = respond => ({
       });
   },
   token: (code, state, host) => {
+    logger.debug('token in controllers.js');
     if (code) {
       openid
         .getTokens(code, state, host)
@@ -68,11 +71,13 @@ module.exports = respond => ({
     }
   },
   jwks: () => {
+    logger.debug('jwks in controllers.js');
     const jwks = openid.getJwks();
     logger.info('Providing access to JWKS: %j', jwks, {});
     respond.success(jwks);
   },
   openIdConfiguration: host => {
+    logger.debug('openIdConfiguration in controllers.js');
     const config = openid.getConfigFor(host);
     logger.info('Providing configuration for %s: %j', host, config, {});
     respond.success(config);

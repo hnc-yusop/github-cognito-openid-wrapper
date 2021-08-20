@@ -1,5 +1,4 @@
 const logger = require('./connectors/logger');
-const { NumericDate } = require('./helpers');
 const crypto = require('./crypto');
 const github = require('./github');
 
@@ -16,31 +15,9 @@ const getUserInfo = accessToken =>
         // https://developer.github.com/v3/users/
         // and http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
         const claims = {
-          sub: `${userDetails.id}`, // OpenID requires a string
-          name: userDetails.name,
-          preferred_username: userDetails.login,
-          profile: userDetails.html_url,
-          picture: userDetails.avatar_url,
-          website: userDetails.blog,
-          updated_at: NumericDate(
-            // OpenID requires the seconds since epoch in UTC
-            new Date(Date.parse(userDetails.updated_at))
-          )
-        };
-        logger.debug('Resolved claims: %j', claims, {});
-        return claims;
-      }),
-    github()
-      .getUserEmails(accessToken)
-      .then(userEmails => {
-        logger.debug('Fetched user emails: %j', userEmails, {});
-        const primaryEmail = userEmails.find(email => email.primary);
-        if (primaryEmail === undefined) {
-          throw new Error('User did not have a primary email address');
-        }
-        const claims = {
-          email: primaryEmail.email,
-          email_verified: primaryEmail.verified
+          sub: `${userDetails.identify}`, // OpenID requires a string
+          name: userDetails.email,
+          preferred_username: userDetails.email,
         };
         logger.debug('Resolved claims: %j', claims, {});
         return claims;
